@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
     tini \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git clone --depth 1 --branch "${COMFYUI_REF}" https://github.com/Comfy-Org/ComfyUI.git "${COMFYUI_DIR}"

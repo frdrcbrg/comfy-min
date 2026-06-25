@@ -62,6 +62,13 @@ Useful environment variables:
 - `COMFYUI_ARGS`: defaults to `--listen 0.0.0.0 --port 8188`
 - `WORKSPACE_DIR`: defaults to `/workspace`
 
+You can also put additional ComfyUI arguments in `/workspace/comfyui_args.txt`, one argument per line:
+
+```text
+--max-batch-size 8
+--preview-method auto
+```
+
 ## Model Layout
 
 Put model files under `/workspace/models`, using ComfyUI's normal folder structure, for example:
