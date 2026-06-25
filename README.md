@@ -137,6 +137,8 @@ Custom nodes are pinned in [custom_nodes.txt](custom_nodes.txt) so builds are re
 
 ComfyUI's Missing Models panel normally starts a browser download when the UI is opened outside Comfy Desktop. This image includes a small local bridge that makes those buttons download into the pod instead. Supported model URLs from Hugging Face, Civitai, and GitHub are downloaded server-side into ComfyUI's registered model directory, for example `/workspace/models/checkpoints`, `/workspace/models/vae`, `/workspace/models/diffusion_models`, or `/workspace/models/text_encoders`. The bridge accepts model files ending in `.safetensors`, `.sft`, `.ckpt`, `.pth`, or `.pt`.
 
+Download progress is shown in a small in-page panel and is also logged periodically in the pod logs.
+
 For gated Hugging Face or Civitai files, set `HF_TOKEN` or `CIVITAI_API_KEY` in the RunPod template.
 
 ## Attribution
