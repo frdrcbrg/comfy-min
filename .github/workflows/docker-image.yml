@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - Dockerfile
+      - Dockerfile.slim
+      - start.sh
+      - constraints.txt
+      - custom_nodes.txt
+      - expected_nodes.txt
+      - scripts/**
+      - .github/workflows/docker-image.yml
   workflow_dispatch:
 
 permissions:

@@ -1,16 +1,18 @@
 # comfy-min
 
-RunPod-ready ComfyUI Docker image with CUDA, PyTorch, SSH, ComfyUI-Manager, RunpodDirect, and curated custom nodes.
+RunPod-ready ComfyUI Docker image with CUDA, PyTorch, SSH, ComfyUI-Manager, RunpodDirect, Conditioning Krea rebalance, and curated custom nodes.
 
 The image builds ComfyUI from the upstream `Comfy-Org/ComfyUI` repository at build time and keeps models, input, output, and user data on `/workspace` so they can live on a RunPod persistent volume.
 
 ## Images
 
-GitHub Actions builds and publishes a `linux/amd64` image on every push to `main`:
+GitHub Actions builds and publishes a `linux/amd64` full image on every push to `main`:
 
 ```text
 ghcr.io/frdrcbrg/comfy-min:latest
 ```
+
+The full image is built from [Dockerfile](Dockerfile). It is not based on the slim image; it has its own CUDA devel base, dependency set, ComfyUI install, import gate, and push step.
 
 There is also an experimental smaller image that keeps the old minimal shape:
 
@@ -18,7 +20,7 @@ There is also an experimental smaller image that keeps the old minimal shape:
 ghcr.io/frdrcbrg/comfy-min:slim
 ```
 
-Use `latest` for the full RunPod image and `slim` only if you explicitly want the lightweight variant.
+The slim image is built independently from [Dockerfile.slim](Dockerfile.slim) in a separate parallel workflow job. Use `latest` for the full RunPod image and `slim` only if you explicitly want the lightweight variant.
 
 ## What's Included
 
@@ -27,9 +29,10 @@ Use `latest` for the full RunPod image and `slim` only if you explicitly want th
 - ComfyUI from `Comfy-Org/ComfyUI`
 - ComfyUI-Manager
 - ComfyUI-RunpodDirect
+- ComfyUI-ConditioningKrea2Rebalance
 - Civicomfy
 - SSH server for RunPod `PUBLIC_KEY` access
-- 29 pinned custom-node packs listed in [custom_nodes.txt](custom_nodes.txt)
+- 30 pinned custom-node packs listed in [custom_nodes.txt](custom_nodes.txt)
 - FlashAttention and SageAttention best-effort installs, with PyTorch SDPA as fallback
 - CI smoke test and ComfyUI import gate before publishing `latest`
 
@@ -110,6 +113,21 @@ The slim variant is built separately:
 docker build -f Dockerfile.slim -t ghcr.io/frdrcbrg/comfy-min:slim .
 ```
 
+## CI Build Flow
+
+The workflow in [.github/workflows/docker-image.yml](.github/workflows/docker-image.yml) can be started manually and also runs automatically when image-relevant files change on `main`. Documentation-only changes do not trigger an image build.
+
+It has two independent jobs:
+
+- `Build, test, and push linux/amd64 image` builds [Dockerfile](Dockerfile), runs the ComfyUI import gate, then publishes `latest` and `sha-<commit>`.
+- `Build and push linux/amd64 slim image` builds [Dockerfile.slim](Dockerfile.slim), then publishes `slim` and `slim-sha-<commit>`.
+
+Both jobs use GitHub Actions cache, but neither image inherits from the other.
+
+## Custom Nodes
+
+Custom nodes are pinned in [custom_nodes.txt](custom_nodes.txt) so builds are reproducible. The current full image includes ComfyUI-Manager, RunpodDirect, Civicomfy, the Ultimate-derived node set, and `ComfyUI-ConditioningKrea2Rebalance` pinned to `9ab5315e6aa8`.
+
 ## Attribution
 
-The custom-node set, pinning strategy, and several dependency-hardening ideas are adapted from [IxMxAMAR/ComfyUI-Ultimate](https://github.com/IxMxAMAR/ComfyUI-Ultimate).
+The custom-node set, pinning strategy, and several dependency-hardening ideas are adapted from [IxMxAMAR/ComfyUI-Ultimate](https://github.com/IxMxAMAR/ComfyUI-Ultimate). The Conditioning Krea rebalance node comes from [nova452/ComfyUI-ConditioningKrea2Rebalance](https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance).
