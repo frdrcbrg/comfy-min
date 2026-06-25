@@ -9,28 +9,28 @@ The image builds ComfyUI from the upstream `Comfy-Org/ComfyUI` repository at bui
 GitHub Actions builds and publishes a `linux/amd64` image on every push to `main`:
 
 ```text
-ghcr.io/OWNER/comfy-min:latest
+ghcr.io/frdrcbrg/comfy-min:latest
 ```
 
-Use that image directly in a Runpod Pod template after replacing `OWNER` with the GitHub owner.
+Use that image directly in a Runpod Pod template.
 
 ## Build
 
 ```bash
-docker build -t yourname/comfy-min:latest .
+docker build -t ghcr.io/frdrcbrg/comfy-min:latest .
 ```
 
 For Runpod, build and push an `amd64` image:
 
 ```bash
-docker build --platform linux/amd64 -t yourname/comfy-min:latest .
-docker push yourname/comfy-min:latest
+docker build --platform linux/amd64 -t ghcr.io/frdrcbrg/comfy-min:latest .
+docker push ghcr.io/frdrcbrg/comfy-min:latest
 ```
 
 To pin a known ComfyUI commit, tag, or branch:
 
 ```bash
-docker build --build-arg COMFYUI_REF=master -t yourname/comfy-min:latest .
+docker build --build-arg COMFYUI_REF=master -t ghcr.io/frdrcbrg/comfy-min:latest .
 ```
 
 ## Run Locally
@@ -40,7 +40,7 @@ docker run --rm -it \
   --gpus all \
   -p 8188:8188 \
   -v "$PWD/workspace:/workspace" \
-  yourname/comfy-min:latest
+  ghcr.io/frdrcbrg/comfy-min:latest
 ```
 
 Open `http://localhost:8188`.
