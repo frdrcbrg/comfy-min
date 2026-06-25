@@ -52,16 +52,18 @@ Recommended template settings:
 - Compute type: NVIDIA GPU
 - HTTP ports: `8188/http`
 - TCP ports: `22/tcp`
-- Volume mount path: `/workspace`
+- Network volume mount path: `/workspace`
 - Container disk: at least `40 GB`
-- Volume disk: sized for your models
+- Network volume disk: sized for your models
 
 RunPod injects your SSH key via `PUBLIC_KEY` when configured in your RunPod account.
 
 Useful environment variables:
 
 - `COMFYUI_ARGS`: defaults to `--listen 0.0.0.0 --port 8188`
-- `WORKSPACE_DIR`: defaults to `/workspace`
+- `WORKSPACE_DIR`: defaults to `/workspace`, the recommended RunPod network volume mount path
+- `MODELS_DIR`: defaults to `/workspace/models`; override only if models live on a separately mounted volume
+- `REQUIRE_WORKSPACE_MOUNT`: set to `1` to fail startup when `/workspace` is not a mounted volume
 - `PUBLIC_KEY`: SSH public key, usually injected by RunPod
 - `HF_TOKEN`: optional Hugging Face token for gated model downloads
 - `CIVITAI_API_KEY`: optional Civitai token for model downloads
@@ -83,6 +85,8 @@ These directories are symlinked to `/workspace` at startup:
 /opt/ComfyUI/output -> /workspace/output
 /opt/ComfyUI/user   -> /workspace/user
 ```
+
+On RunPod, attach the network volume with mount path `/workspace`. If `/workspace` is not mounted, the image will still start by default, but the startup log prints a warning because files may be lost with the pod. Set `REQUIRE_WORKSPACE_MOUNT=1` to make that condition fatal.
 
 Put model files under `/workspace/models`, using ComfyUI's normal folder structure:
 
