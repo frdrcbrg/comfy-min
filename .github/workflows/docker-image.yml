@@ -10,6 +10,7 @@ on:
       - start.sh
       - constraints.txt
       - custom_nodes.txt
+      - custom_nodes/**
       - expected_nodes.txt
       - scripts/**
       - .github/workflows/docker-image.yml

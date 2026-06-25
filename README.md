@@ -30,6 +30,7 @@ The slim image is built independently from [Dockerfile.slim](Dockerfile.slim) in
 - ComfyUI-Manager
 - ComfyUI-RunpodDirect
 - ComfyUI-ConditioningKrea2Rebalance
+- RunPod model downloader bridge for ComfyUI's missing-model download buttons
 - Civicomfy
 - SSH server for RunPod `PUBLIC_KEY` access
 - 30 pinned custom-node packs listed in [custom_nodes.txt](custom_nodes.txt)
@@ -127,6 +128,12 @@ Both jobs use GitHub Actions cache, but neither image inherits from the other.
 ## Custom Nodes
 
 Custom nodes are pinned in [custom_nodes.txt](custom_nodes.txt) so builds are reproducible. The current full image includes ComfyUI-Manager, RunpodDirect, Civicomfy, the Ultimate-derived node set, and `ComfyUI-ConditioningKrea2Rebalance` pinned to `9ab5315e6aa8`.
+
+## Missing Model Downloads
+
+ComfyUI's Missing Models panel normally starts a browser download when the UI is opened outside Comfy Desktop. This image includes a small local bridge that makes those buttons download into the pod instead. Supported model URLs from Hugging Face, Civitai, and GitHub releases are downloaded server-side into ComfyUI's registered model directory, for example `/workspace/models/checkpoints`, `/workspace/models/vae`, `/workspace/models/diffusion_models`, or `/workspace/models/text_encoders`.
+
+For gated Hugging Face or Civitai files, set `HF_TOKEN` or `CIVITAI_API_KEY` in the RunPod template.
 
 ## Attribution
 

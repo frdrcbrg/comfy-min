@@ -35,6 +35,8 @@ RUN python3 -m venv /opt/venv \
     && /opt/venv/bin/pip install torch torchvision torchaudio --index-url "https://download.pytorch.org/whl/${PYTORCH_CUDA}" \
     && /opt/venv/bin/pip install -r requirements.txt
 
+COPY custom_nodes/ComfyUI-RunpodModelDownloader/ /opt/ComfyUI/custom_nodes/ComfyUI-RunpodModelDownloader/
+
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 

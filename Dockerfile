@@ -93,6 +93,7 @@ RUN uv pip install --no-cache -r requirements.txt
 COPY custom_nodes.txt /opt/custom_nodes.txt
 COPY expected_nodes.txt /opt/expected_nodes.txt
 RUN /opt/scripts/install_custom_nodes.sh /opt/custom_nodes.txt
+COPY custom_nodes/ComfyUI-RunpodModelDownloader/ /opt/ComfyUI/custom_nodes/ComfyUI-RunpodModelDownloader/
 
 RUN pip uninstall -y opencv-python opencv-python-headless opencv-contrib-python opencv-contrib-python-headless onnxruntime onnxruntime-gpu || true \
     && uv pip install --no-cache opencv-contrib-python-headless==4.11.0.86 onnxruntime-gpu==1.22.0
