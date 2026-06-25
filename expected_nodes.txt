@@ -27,3 +27,4 @@ ComfyUI-Utility-MegaPack
 Nvidia_RTX_Nodes_ComfyUI
 Civicomfy
 ComfyUI-RunpodDirect
+ComfyUI-ConditioningKrea2Rebalance

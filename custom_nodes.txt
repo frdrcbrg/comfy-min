@@ -29,3 +29,4 @@ ComfyUI-Utility-MegaPack https://github.com/IxMxAMAR/ComfyUI-Utility-MegaPack.gi
 Nvidia_RTX_Nodes_ComfyUI https://github.com/Comfy-Org/Nvidia_RTX_Nodes_ComfyUI.git 892515e3eb9a
 Civicomfy https://github.com/MoonGoblinDev/Civicomfy.git 555e984bbcb0
 ComfyUI-RunpodDirect https://github.com/MadiatorLabs/ComfyUI-RunpodDirect.git 8be7b2206b75
+ComfyUI-ConditioningKrea2Rebalance https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance.git 9ab5315e6aa8
