@@ -77,10 +77,10 @@ You can also put additional ComfyUI arguments in `/workspace/comfyui_args.txt`, 
 
 ## Persistent Layout
 
-These directories are symlinked to `/workspace` at startup:
+These directories are symlinked at startup:
 
 ```text
-/opt/ComfyUI/models -> /workspace/models
+/opt/ComfyUI/models -> ${MODELS_DIR:-/workspace/models}
 /opt/ComfyUI/input  -> /workspace/input
 /opt/ComfyUI/output -> /workspace/output
 /opt/ComfyUI/user   -> /workspace/user
@@ -135,7 +135,7 @@ Custom nodes are pinned in [custom_nodes.txt](custom_nodes.txt) so builds are re
 
 ## Missing Model Downloads
 
-ComfyUI's Missing Models panel normally starts a browser download when the UI is opened outside Comfy Desktop. This image includes a small local bridge that makes those buttons download into the pod instead. Supported model URLs from Hugging Face, Civitai, and GitHub releases are downloaded server-side into ComfyUI's registered model directory, for example `/workspace/models/checkpoints`, `/workspace/models/vae`, `/workspace/models/diffusion_models`, or `/workspace/models/text_encoders`.
+ComfyUI's Missing Models panel normally starts a browser download when the UI is opened outside Comfy Desktop. This image includes a small local bridge that makes those buttons download into the pod instead. Supported model URLs from Hugging Face, Civitai, and GitHub are downloaded server-side into ComfyUI's registered model directory, for example `/workspace/models/checkpoints`, `/workspace/models/vae`, `/workspace/models/diffusion_models`, or `/workspace/models/text_encoders`. The bridge accepts model files ending in `.safetensors`, `.sft`, `.ckpt`, `.pth`, or `.pt`.
 
 For gated Hugging Face or Civitai files, set `HF_TOKEN` or `CIVITAI_API_KEY` in the RunPod template.
 
