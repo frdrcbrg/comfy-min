@@ -27,6 +27,12 @@ docker build --platform linux/amd64 -t ghcr.io/frdrcbrg/comfy-min:latest .
 docker push ghcr.io/frdrcbrg/comfy-min:latest
 ```
 
+There is also an experimental slim Dockerfile that starts from plain Ubuntu instead of an NVIDIA CUDA runtime image. It still installs PyTorch CUDA wheels, but avoids carrying the base CUDA runtime layer:
+
+```bash
+docker build -f Dockerfile.slim -t ghcr.io/frdrcbrg/comfy-min:slim .
+```
+
 To pin a known ComfyUI commit, tag, or branch:
 
 ```bash
