@@ -12,7 +12,7 @@ GitHub Actions builds and publishes a `linux/amd64` full image on every push to 
 ghcr.io/frdrcbrg/comfy-min:latest
 ```
 
-The full image is built from [Dockerfile](Dockerfile). It is not based on the slim image; it has its own CUDA devel base, dependency set, ComfyUI install, import gate, and push step.
+The full image is built from [Dockerfile](Dockerfile) using a two-stage build: a `devel` builder stage compiles and installs all Python packages, and a smaller `runtime` stage receives only the finished `/opt/venv` and `/opt/ComfyUI` trees — dropping build tools, CUDA headers, and compiler toolchains from the shipped image. It is not based on the slim image; it has its own dependency set, ComfyUI install, import gate, and push step.
 
 There is also an experimental smaller image that keeps the old minimal shape:
 
@@ -24,7 +24,7 @@ The slim image is built independently from [Dockerfile.slim](Dockerfile.slim) in
 
 ## What's Included
 
-- CUDA 12.8 devel base image
+- CUDA 12.8 runtime base image (built via a devel builder stage; compiler toolchain is not shipped)
 - PyTorch `2.8.0+cu128`
 - ComfyUI from `Comfy-Org/ComfyUI`
 - ComfyUI-Manager
@@ -128,6 +128,17 @@ It has two independent jobs:
 - `Build and push linux/amd64 slim image` builds [Dockerfile.slim](Dockerfile.slim), then publishes `slim` and `slim-sha-<commit>`.
 
 Both jobs use GitHub Actions cache, but neither image inherits from the other.
+
+### Multi-stage build
+
+[Dockerfile](Dockerfile) uses a two-stage build to keep the shipped image small:
+
+| Stage | Base image | Purpose |
+|---|---|---|
+| `builder` | `nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04` | Installs build tools, compiles Python packages, clones ComfyUI and custom nodes into `/opt/venv` and `/opt/ComfyUI` |
+| *(final)* | `nvidia/cuda:12.8.0-cudnn-runtime-ubuntu24.04` | Copies `/opt/venv`, `/opt/ComfyUI`, and `/opt/scripts` from the builder; installs only runtime apt packages |
+
+The final image ships without `build-essential`, `ninja-build`, `python3-dev`, `git-lfs`, `wget`, or CUDA devel headers. The smoke test and ComfyUI import gate both run against the runtime stage so they validate exactly what gets pushed.
 
 ## Custom Nodes
 
