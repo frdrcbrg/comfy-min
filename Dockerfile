@@ -1,4 +1,5 @@
-FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04
+# ── Stage 1: builder ────────────────────────────────────────────────────────
+FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 AS builder
 
 ARG COMFYUI_REF=master
 ARG PYTORCH_CUDA=cu128
@@ -13,37 +14,20 @@ ENV DEBIAN_FRONTEND=noninteractive \
     VIRTUAL_ENV=/opt/venv \
     PATH=/opt/venv/bin:/usr/local/bin:/usr/bin:/bin \
     PIP_CONSTRAINT=/opt/constraints.txt \
-    UV_CONSTRAINT=/opt/constraints.txt \
-    COMFYUI_DIR=/opt/ComfyUI \
-    COMFYUI_ARGS="--listen 0.0.0.0 --port 8188" \
-    WORKSPACE_DIR=/workspace \
-    HF_HUB_DISABLE_TELEMETRY=1 \
-    WAS_BLOCK_AUTO_INSTALL=1
+    UV_CONSTRAINT=/opt/constraints.txt
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    aria2 \
     build-essential \
     ca-certificates \
     curl \
-    ffmpeg \
     git \
     git-lfs \
-    libgl1 \
-    libglib2.0-0 \
-    libgomp1 \
-    libsndfile1 \
     ninja-build \
-    openssh-server \
     python3 \
     python3-dev \
     python3-pip \
     python3-venv \
-    tini \
-    wget \
     && git lfs install \
-    && ssh-keygen -A \
-    && sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config \
-    && sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config \
     && rm -rf /var/lib/apt/lists/*
 
 COPY constraints.txt /opt/constraints.txt
@@ -86,8 +70,8 @@ RUN bash -c '\
     pip uninstall -y sageattention >/dev/null 2>&1 || true; \
   fi'
 
-RUN git clone --depth 1 --branch "${COMFYUI_REF}" https://github.com/Comfy-Org/ComfyUI.git "${COMFYUI_DIR}"
-WORKDIR ${COMFYUI_DIR}
+RUN git clone --depth 1 --branch "${COMFYUI_REF}" https://github.com/Comfy-Org/ComfyUI.git /opt/ComfyUI
+WORKDIR /opt/ComfyUI
 RUN uv pip install --no-cache -r requirements.txt
 
 COPY custom_nodes.txt /opt/custom_nodes.txt
@@ -98,11 +82,51 @@ COPY custom_nodes/ComfyUI-RunpodModelDownloader/ /opt/ComfyUI/custom_nodes/Comfy
 RUN pip uninstall -y opencv-python opencv-python-headless opencv-contrib-python opencv-contrib-python-headless onnxruntime onnxruntime-gpu || true \
     && uv pip install --no-cache opencv-contrib-python-headless==4.11.0.86 onnxruntime-gpu==1.22.0
 
+# ── Stage 2: runtime ────────────────────────────────────────────────────────
+FROM nvidia/cuda:12.8.0-cudnn-runtime-ubuntu24.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONUNBUFFERED=1 \
+    VIRTUAL_ENV=/opt/venv \
+    PATH=/opt/venv/bin:/usr/local/bin:/usr/bin:/bin \
+    PIP_CONSTRAINT=/opt/constraints.txt \
+    UV_CONSTRAINT=/opt/constraints.txt \
+    COMFYUI_DIR=/opt/ComfyUI \
+    COMFYUI_ARGS="--listen 0.0.0.0 --port 8188" \
+    WORKSPACE_DIR=/workspace \
+    HF_HUB_DISABLE_TELEMETRY=1 \
+    WAS_BLOCK_AUTO_INSTALL=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    aria2 \
+    ca-certificates \
+    curl \
+    ffmpeg \
+    git \
+    libgl1 \
+    libglib2.0-0 \
+    libgomp1 \
+    libsndfile1 \
+    openssh-server \
+    python3 \
+    tini \
+    && ssh-keygen -A \
+    && sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config \
+    && sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder /opt/ComfyUI /opt/ComfyUI
+COPY --from=builder /opt/scripts /opt/scripts
+COPY constraints.txt expected_nodes.txt /opt/
+
 RUN python /opt/scripts/smoke_test.py
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+COPY --chmod=755 start.sh /start.sh
 
+WORKDIR /opt/ComfyUI
 EXPOSE 8188 22
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/start.sh"]
